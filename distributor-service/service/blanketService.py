@@ -1,6 +1,22 @@
 from config.dbConfig import get_connection
 
 class BlanketService:
+
+    def get_all_blanket_data():
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+            query = "SELECT * FROM BlanketModel"
+            cursor.execute(query)
+            results = cursor.fetchall()
+            return [dict(zip([col[0] for col in cursor.description], row)) for row in results]
+        except Exception as e:
+            print("Error:", e)
+            return []
+        finally:
+            cursor.close()
+            conn.close()
+
     def get_distributor_stock_count(blanket_id):
         try:
             conn = get_connection()

@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from controller.blanketController import BlanketController
-
+from controller.inventoryController import InventoryController
 api_routes = Blueprint('api_routes', __name__)
 
 
@@ -41,28 +41,44 @@ def send_manufactor_requests():
     except Exception as e:
         print("Error:", e)
         return jsonify({"error": str(e), "status": "error"}), 500
-
+    
+    
 @api_routes.route('/updateDistributorStockCount', methods=['POST'])
 def update_distributor_stock_count():
     try:
         data = request.get_json()
+        result = InventoryController.update_distributor_stock(data)
 
-        blanket_name = data.get('blanket_name')
-        blanket_size = data.get('blanket_size')
-        add_count = data.get('add_count')
+        return jsonify(result), 200 if result["status"] == "success" else 400
 
-        print(f"Blanket Name: {blanket_name}")
-        print(f"Blanket Size: {blanket_size}")
-        print(f"Add Count: {add_count}")
-
-        return jsonify({"message": "Stock update received", "status": "success"}), 200
     except Exception as e:
         return jsonify({"error": str(e), "status": "error"}), 400
 
 
+
 @api_routes.route('/getAllInventories', methods=['GET'])
 def getAllInventoryList():
-    return "Hello Hello"
+    try:
+        data = InventoryController.getAllInventoryData()
+        return jsonify({
+            "message": "Filtered Inventory fetched successfully",
+            "status": "success",
+            "data": data
+        })
+    except Exception as e:
+        return jsonify({"message": str(e), "status": "error"}), 500
+
+@api_routes.route('/blanket/getAllBlanket', methods=['GET'])
+def getAllBlankets():
+    try:
+        data = BlanketController.getAllBlanketData()
+        return jsonify({
+            "message": "Filtered blankets fetched successfully",
+            "status": "success",
+            "data": data
+        })
+    except Exception as e:
+        return jsonify({"message": str(e), "status": "error"}), 500
 
 @api_routes.route('/blanket/filter', methods=['GET'])
 def filter_blankets():

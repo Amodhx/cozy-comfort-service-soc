@@ -5,6 +5,6 @@ def get_connection():
         host="127.0.0.1",
         user="root",
         password="1234",
-        database="cozy",
+        database="cozy_comfort",
         connect_timeout=5
     )
