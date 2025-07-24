@@ -17,6 +17,22 @@ def allowed_file(filename):
 
 api_routes = Blueprint('api_routes', __name__)
 
+
+@api_routes.route('/blanket/getAllBlanket', methods=['GET'])
+def getAllBlankets():
+    try:
+
+        data = BlanketController.getAllBlanketdata()
+
+        return jsonify({
+            "message": "Filtered blankets fetched successfully",
+            "status": "success",
+            "data": data
+        })
+    except Exception as e:
+        return jsonify({"message": str(e), "status": "error"}), 500
+
+
 @api_routes.route('/blanket/saveBlanket', methods=['POST'])
 def saveBlanket():
     try:

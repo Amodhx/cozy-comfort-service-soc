@@ -30,3 +30,10 @@ class BlanketController:
             stock_count = BlanketService.get_seller_stock_count(blanket['blanket_id'])
             blanket['seller_stock_available_count'] = stock_count
         return blankets
+    
+    def getAllBlanketdata():
+        blankets = BlanketService.getAllBlanketData()
+        for blanket in blankets:
+            stock_count = BlanketService.get_seller_stock_count(blanket['blanket_id'])
+            blanket['seller_stock_available_count'] = stock_count
+        return blankets

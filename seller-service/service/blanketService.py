@@ -2,6 +2,23 @@ from config.dbConfig import get_connection
 
 class BlanketService:
    
+
+   def getAllBlanketData():
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+            query = "SELECT * FROM BlanketModel"
+            cursor.execute(query)
+            results = cursor.fetchall()
+            return [dict(zip([col[0] for col in cursor.description], row)) for row in results]
+        except Exception as e:
+            print("Error:", e)
+            return []
+        finally:
+            cursor.close()
+            conn.close()
+       
+   
    def get_blanket_by_model_and_size(model, size):
     try:
         conn = get_connection()
@@ -73,7 +90,6 @@ class BlanketService:
         finally:
             cursor.close()
             conn.close()
-
 
    def saveBlanket(blanket):
         try:
