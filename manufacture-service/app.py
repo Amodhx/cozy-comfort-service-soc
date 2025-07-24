@@ -9,5 +9,5 @@ def home():
     return "Welcome to Cozy Comfort API!"
 
 if __name__ == '__main__':
-    print("Distributor SERVER Started ON : port 3002 :!")
-    app.run(debug=True, port=3002)
+    print("Manufactuter SERVER Started ON : port 3001 :!")
+    app.run(debug=True, port=3001)
