@@ -40,25 +40,65 @@ class RequestService:
 
         return saved
 
-    @staticmethod
     def approveRequest(request_id):
         try:
             conn = get_connection()
             cursor = conn.cursor()
 
-            # Update status to APPROVED
-            query = """
+            # 1. Update status to APPROVED
+            update_query = """
                 UPDATE Seller_Distributor_Request
                 SET seller_distributor_status = 'APPROVED'
                 WHERE seller_distributor_request_id = %s
             """
-            cursor.execute(query, (request_id,))
+            cursor.execute(update_query, (request_id,))
             conn.commit()
 
-            return {"status": "success", "message": "Request approved successfully"}
+            # 2. Fetch blanket_id and qty of this request
+            select_query = """
+                SELECT blanket_id, qty FROM Seller_Distributor_Request
+                WHERE seller_distributor_request_id = %s
+            """
+            cursor.execute(select_query, (request_id,))
+            result = cursor.fetchone()
+
+            if not result:
+                return {"status": "error", "message": "Request not found."}
+
+            blanket_id, qty = result
+
+            # 3. Check if entry exists in Inventory with stock_type='SELLER'
+            check_query = """
+                SELECT stock_id, qty FROM Inventory
+                WHERE blanket_id = %s AND stock_type = 'SELLER'
+            """
+            cursor.execute(check_query, (blanket_id,))
+            existing = cursor.fetchone()
+
+            if existing:
+                # Entry exists → Update the qty
+                stock_id, current_qty = existing
+                new_qty = current_qty + qty
+                update_inventory_query = """
+                    UPDATE Inventory SET qty = %s WHERE stock_id = %s
+                """
+                cursor.execute(update_inventory_query, (new_qty, stock_id))
+            else:
+                # Entry doesn't exist → Insert new row
+                insert_inventory_query = """
+                    INSERT INTO Inventory (blanket_id, qty, stock_type)
+                    VALUES (%s, %s, 'SELLER')
+                """
+                cursor.execute(insert_inventory_query, (blanket_id, qty))
+
+            conn.commit()
+
+            return {"status": "success", "message": "Request approved and inventory updated."}
+
         except Exception as e:
             print("Error approving request:", e)
             return {"status": "error", "message": str(e)}
+
         finally:
             cursor.close()
             conn.close()

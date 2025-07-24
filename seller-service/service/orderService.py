@@ -11,7 +11,7 @@ class OrderService:
                 SELECT 
                     o.order_id, o.customer_id, o.date, o.total_price, o.total_item_count,
                     c.name AS customer_name, c.contact_number, c.email
-                FROM `Order` o
+                FROM Orders o
                 JOIN Customer c ON o.customer_id = c.customer_id
                 ORDER BY o.date DESC
             """
@@ -37,7 +37,7 @@ class OrderService:
         cursor = connection.cursor()
 
         insert_query = """
-        INSERT INTO `Order` (customer_id, date, total_price, total_item_count)
+        INSERT INTO Orders (customer_id, date, total_price, total_item_count)
         VALUES (%s, %s, %s, %s)
         """
 
