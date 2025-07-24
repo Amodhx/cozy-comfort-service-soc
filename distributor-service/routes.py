@@ -1,48 +1,61 @@
 from flask import Blueprint, request, jsonify
 from controller.blanketController import BlanketController
 from controller.inventoryController import InventoryController
+from controller.requestController import RequestController
 api_routes = Blueprint('api_routes', __name__)
 
 
 @api_routes.route('/getAllRequestHistoryCompleted',methods=['GET'])
 def get_all_completed_request_history():
-    return "HELLO MAN"
+    try:
+        data = RequestController.getAllCompltedRequests()
+        return jsonify({
+            "message": "Filtered Requsts fetched successfully",
+            "status": "success",
+            "data": data
+        })
+    except Exception as e:
+        return jsonify({"message": str(e), "status": "error"}), 500
 
 
 @api_routes.route('/getAllRequestHistoryNotCompleted',methods=['GET'])
 def get_all_request_history():
-    return "Hello history"
+    try:
+        data = RequestController.getAllInCompltedRequests()
+        return jsonify({
+            "message": "Filtered Requsts fetched successfully",
+            "status": "success",
+            "data": data
+        })
+    except Exception as e:
+        return jsonify({"message": str(e), "status": "error"}), 500
 
 @api_routes.route('/approveRequest', methods=['POST'])
 def approve_request():
     try:
         data = request.get_json()
-        request_id = data.get('request_id')
-
-        print(f"Request ID received: {request_id}")
-
-        return jsonify({"message": "Request ID received", "status": "success"}), 200
+        response = RequestController.approveRequest(data)
+        return jsonify({
+            "message": "Requsts Approved successfully",
+            "status": "success",
+            "data": response
+        })
     except Exception as e:
-        return jsonify({"error": str(e), "status": "error"}), 400
+        return jsonify({"message": str(e), "status": "error"}), 500
     
 @api_routes.route('/sendReqtoManufactor', methods=['POST'])
 def send_manufactor_requests():
     try:
         data = request.get_json()
 
-        blanket_id = data.get("blanket_id")
-        qty = data.get("qty")
-
-        print("Blanket ID:", blanket_id)
-        print("Quantity:", qty)
-
-        return jsonify({"message": "Request received", "status": "success"}), 200
+        result = RequestController.sendRequestToManufactor(data)
+        return jsonify({"message": "Request Sent", "status": "success"}), 200
 
     except Exception as e:
         print("Error:", e)
         return jsonify({"error": str(e), "status": "error"}), 500
     
-    
+
 @api_routes.route('/updateDistributorStockCount', methods=['POST'])
 def update_distributor_stock_count():
     try:
