@@ -20,5 +20,5 @@ def serve_uploaded_file(filename):
     return send_from_directory(upload_folder, filename)
 
 if __name__ == '__main__':
-    print("Seller SERVER Started ON : port 3002 :!")
+    print("Distributor SERVER Started ON : port 3002 :!")
     app.run(debug=True, port=3002)
