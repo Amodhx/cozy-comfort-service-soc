@@ -2,6 +2,44 @@ from config.dbConfig import get_connection
 
 class BlanketService:
 
+    def saveBlanket(blanket):
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+
+            insert_blanket_query = """
+                INSERT INTO BlanketModel (model, material, price, description, size, image)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """
+            cursor.execute(insert_blanket_query, (
+                blanket.model,
+                blanket.material,
+                blanket.price,
+                blanket.description,
+                blanket.size,
+                blanket.image
+            ))
+
+            blanket_id = cursor.lastrowid
+
+            insert_stock_query = """
+                INSERT INTO ProductionStock (total, blanket_id)
+                VALUES (%s, %s)
+            """
+            cursor.execute(insert_stock_query, (blanket.productionCapacity, blanket_id))
+
+            conn.commit()
+            return {"message": "Blanket and stock saved successfully", "status": "success"}
+        
+        except Exception as e:
+            print("Error while saving blanket and stock:", e)
+            return {"message": "Error saving blanket and stock", "status": "fail", "error": str(e)}
+        
+        finally:
+            cursor.close()
+            conn.close()
+
+
     def get_all_blanket_data():
         try:
             conn = get_connection()
