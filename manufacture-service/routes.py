@@ -3,6 +3,7 @@ from controller.blanketController import BlanketController
 from controller.productionController import ProductionController
 import os
 from werkzeug.utils import secure_filename
+from controller.requestController import RequestController
 
 
 api_routes = Blueprint('api_routes', __name__)
@@ -16,6 +17,46 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+@api_routes.route('/request/approveRequest', methods=['POST'])
+def approve_request():
+    request_id = request.json.get('request_id')
+    if not request_id:
+        return jsonify({"error": "Request ID is required"}), 400
+
+    try:
+        data = RequestController.acceptDistributorRequest(request_id)
+        return jsonify({
+            "message": "Request approved successfully",
+            "status": "success",
+            "data": data
+        })
+    except Exception as e:
+        return jsonify({"message": str(e), "status": "error"}), 500
+
+@api_routes.route('/request/getAllCompletedDistributorRequests', methods=['GET'])
+def get_all_completed_distributor_requests():
+    try:
+        data = RequestController.getAllCompletedDistributorRequests()
+        return jsonify({
+            "message": "Completed distributor requests fetched successfully",
+            "status": "success",
+            "data": data
+        })
+    except Exception as e:
+        return jsonify({"message": str(e), "status": "error"}), 500
+
+
+@api_routes.route('/request/getAllNotCompltedRequests', methods=['GET'])
+def get_all_not_completed_requests():
+    try:
+        data = RequestController.getAllNotCompletedRequests()
+        return jsonify({
+            "message": "Not completed requests fetched successfully",
+            "status": "success",
+            "data": data
+        })
+    except Exception as e:
+        return jsonify({"message": str(e), "status": "error"}), 500
 
 @api_routes.route('/blanket/saveBlanket', methods=['POST'])
 def saveBlanket():
